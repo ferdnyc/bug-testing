@@ -5,8 +5,8 @@ package com.zaxxer.sparsebits;
  *  based upon previous work done for and by Sun Microsystems, Inc. */
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
