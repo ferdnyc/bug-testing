@@ -10,6 +10,7 @@ addons:
     packages: &p_common  # Packages common to all Ubuntu builds
     - cmake
     - swig
+    - libasound2-dev
     - libmagick++-dev
     - libunittest++-dev
     - libzmq3-dev
