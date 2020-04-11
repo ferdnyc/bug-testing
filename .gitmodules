@@ -1,0 +1,6 @@
+[submodule "libopenshot-audio"]
+	path = libopenshot-audio
+	url = https://github.com/ferdnyc/libopenshot-audio
+[submodule "libopenshot"]
+	path = libopenshot
+	url = https://github.com/ferdnyc/libopenshot
