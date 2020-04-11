@@ -104,6 +104,7 @@ jobs:
         - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../../install-x64"
         - TEST_TARGET="test"
         - BUILD_AUDIO_LIB=1
+        - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
       before_install:
         - brew tap jmuncaster/homebrew-header-only # For cppzmq
         - brew install cppzmq
@@ -118,7 +119,7 @@ script:
   - mkdir -p libopenshot/build; cd libopenshot/build;
   - cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=../../install-x64 ${CMAKE_EXTRA_ARGS} ..
   - cmake --build . -- VERBOSE=1
-  - cmake --build ${TEST_TARGET} . -- VERBOSE=1
+  - cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
   - make install VERBOSE=1
   - cd ..
 
