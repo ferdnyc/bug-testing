@@ -52,7 +52,7 @@ jobs:
     - name: "FFmpeg 4 GCC (Ubuntu 18.04 Bionic)"
       env:
         - BUILD_VERSION=ffmpeg4
-        - CMAKE_EXTRA_ARGS=""
+        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../../install-x64"
         - TEST_TARGET=test
         - BUILD_AUDIO_LIB=1
       os: linux
@@ -80,7 +80,7 @@ jobs:
     - name: "FFmpeg 3.4 Clang (Ubuntu 18.04 Bionic)"
       env:
         - BUILD_VERSION=clang_ffmpeg34
-        - CMAKE_EXTRA_ARGS=""
+        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../../install-x64"
         - TEST_TARGET=test
         - BUILD_AUDIO_LIB=1
       os: linux
@@ -113,7 +113,7 @@ before_install:
   - git clone https://github.com/OpenShot/libopenshot
 
 script:
-  - if [! -z ${BUILD_AUDIO_LIB}]; then git clone https://github.com/OpenShot/libopenshot-audio; cd libopenshot-audio; mkdir build; cd build; cmake -DCMAKE_INSTALL_PREFIX=../../install-x64 ..; cmake --build .; make install VERBOSE=1; cd ../..; fi
+  - if [ ! -z ${BUILD_AUDIO_LIB} ]; then git clone https://github.com/OpenShot/libopenshot-audio; cd libopenshot-audio; mkdir build; cd build; cmake -DCMAKE_INSTALL_PREFIX=../../install-x64 ..; cmake --build .; make install VERBOSE=1; cd ../..; fi
   - mkdir -p libopenshot/build; cd libopenshot/build;
   - cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=../../install-x64 ${CMAKE_EXTRA_ARGS} ..
   - cmake --build . -- VERBOSE=1
