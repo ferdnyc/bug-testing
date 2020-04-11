@@ -32,6 +32,7 @@ addons:
     - libavresample-dev
     - libswresample-dev
   homebrew:
+    tap: jmuncaster/homebrew-header-only
     packages:
       - gcc
       - swig
@@ -46,6 +47,7 @@ addons:
       - fdk-aac
       - fdk-aac-encoder
       - ffmpeg
+      - cppzmq
 
 jobs:
   include:
@@ -53,7 +55,7 @@ jobs:
     - name: "FFmpeg 4 GCC (Ubuntu 18.04 Bionic)"
       env:
         - BUILD_VERSION=ffmpeg4
-        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../../install-x64"
+        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=install-x64"
         - TEST_TARGET=test
       os: linux
       dist: bionic
@@ -80,7 +82,7 @@ jobs:
     - name: "FFmpeg 3.4 Clang (Ubuntu 18.04 Bionic)"
       env:
         - BUILD_VERSION=clang_ffmpeg34
-        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../../install-x64"
+        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=install-x64"
         - TEST_TARGET=test
       os: linux
       dist: bionic
@@ -99,20 +101,16 @@ jobs:
       os: osx
       env:
         - BUILD_VERSION=ffmpeg4
-        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../../install-x64"
+        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=install-x64"
         - TEST_TARGET="test"
         - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
-      before_install:
-        - brew tap jmuncaster/homebrew-header-only # For cppzmq
-        - brew install cppzmq
-        - brew upgrade cmake
-        - git clone https://github.com/OpenShot/libopenshot
 
 script:
-  - mkdir -p libopenshot-audio/build; pushd libopenshot-audio/build; cmake -DCMAKE_INSTALL_PREFIX=../../install-x64 ..; cmake --build . -- VERBOSE=1; make install VERBOSE=1; popd; fi
-  - mkdir -p libopenshot/build; cd libopenshot/build;
+  - mkdir build; mkdir libopenshot-audio-build
+  - pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../build/install-x64 ../libopenshot-audio; cmake --build . -- VERBOSE=1; make install VERBOSE=1; popd; fi
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
-  - cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=../../install-x64 ${CMAKE_EXTRA_ARGS} ..
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=install-x64 ${CMAKE_EXTRA_ARGS} ..
   - cmake --build . -- VERBOSE=1
   - cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
   - make install VERBOSE=1
