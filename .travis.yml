@@ -108,8 +108,6 @@ jobs:
       osx_image: xcode10.3
       addons:
         homebrew:
-          taps:
-          - jmuncaster/homebrew-header-only
           packages:
           - gcc
           - swig
@@ -124,13 +122,14 @@ jobs:
           - fdk-aac
           - fdk-aac-encoder
           - ffmpeg
-          - cppzmq
 
 script:
   - mkdir build; mkdir libopenshot-audio-build
   - pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../build/install-x64 ../libopenshot-audio; cmake --build . -- VERBOSE=1; make install VERBOSE=1; popd
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cp cppzmq/zmq*.hpp build/; export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DCMAKE_INCLUDE_CURRENT_DIR=1"; fi
   - cd build
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
   - cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=install-x64 ${CMAKE_EXTRA_ARGS} ../libopenshot
   - cmake --build . -- VERBOSE=1
   - cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
