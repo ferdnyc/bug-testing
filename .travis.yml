@@ -33,22 +33,22 @@ addons:
     - libswresample-dev
   homebrew:
     taps:
-      - jmuncaster/homebrew-header-only
-    packages:
-      - gcc
-      - swig
-      - unittest-cpp
-      - rust
-      - qt
-      - libomp
-      - imagemagick
-      - libvpx
-      - x264
-      - x265
-      - fdk-aac
-      - fdk-aac-encoder
-      - ffmpeg
-      - cppzmq
+    - jmuncaster/homebrew-header-only
+    packages: &homebrew
+    - gcc
+    - swig
+    - unittest-cpp
+    - rust
+    - qt
+    - libomp
+    - imagemagick
+    - libvpx
+    - x264
+    - x265
+    - fdk-aac
+    - fdk-aac-encoder
+    - ffmpeg
+    - cppzmq
 
 jobs:
   include:
@@ -99,12 +99,32 @@ jobs:
           - libomp-dev
           
     - name: "macOS Latest"
-      os: osx
       env:
         - BUILD_VERSION=ffmpeg4
         - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=install-x64"
         - TEST_TARGET="test"
         - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
+      os: osx
+      addons:
+        homebrew:
+          update: true
+          taps:
+          - jmuncaster/homebrew-header-only
+          packages:
+          - gcc
+          - swig
+          - unittest-cpp
+          - rust
+          - qt
+          - libomp
+          - imagemagick
+          - libvpx
+          - x264
+          - x265
+          - fdk-aac
+          - fdk-aac-encoder
+          - ffmpeg
+          - cppzmq
 
 script:
   - mkdir build; mkdir libopenshot-audio-build
