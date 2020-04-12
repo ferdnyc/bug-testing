@@ -1,6 +1,8 @@
 [submodule "libopenshot-audio"]
 	path = libopenshot-audio
 	url = https://github.com/ferdnyc/libopenshot-audio
+	branch = appveyor
 [submodule "libopenshot"]
 	path = libopenshot
 	url = https://github.com/ferdnyc/libopenshot
+	branch = appveyor
