@@ -3,17 +3,17 @@ compiler: gcc
 addons:
   apt:
     packages: &1
-    - - cmake
-      - swig
-      - libasound2-dev
-      - libmagick++-dev
-      - libunittest++-dev
-      - libzmq3-dev
-      - qtbase5-dev
-      - qtmultimedia5-dev
-      - doxygen
-      - graphviz
-      - curl
+    - cmake
+    - swig
+    - libasound2-dev
+    - libmagick++-dev
+    - libunittest++-dev
+    - libzmq3-dev
+    - qtbase5-dev
+    - qtmultimedia5-dev
+    - doxygen
+    - graphviz
+    - curl
     - libfdk-aac-dev
     - libavcodec-dev
     - libavformat-dev
@@ -48,9 +48,9 @@ jobs:
   - name: FFmpeg 4 GCC (Ubuntu 18.04 Bionic)
     env:
     - BUILD_VERSION=ffmpeg4
-    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=cache-x64"
+    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../cache-x64"
     - TEST_TARGET=test
-    - LIBOPENSHOT_AUDIO_LIBRARY="cache-x64/lib/libopenshot.so"
+    - LIBOPENSHOT_CACHE="cache-x64/lib/libopenshot-audio.so"
     os: linux
     dist: bionic
     addons:
@@ -75,9 +75,9 @@ jobs:
   - name: FFmpeg 3.4 Clang (Ubuntu 18.04 Bionic)
     env:
     - BUILD_VERSION=clang_ffmpeg34
-    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=cache-x64"
+    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../cache-x64"
     - TEST_TARGET=test
-    - LIBOPENSHOT_AUDIO_LIBRARY="cache-x64/lib/libopenshot.so"
+    - LIBOPENSHOT_CACHE="cache-x64/lib/libopenshot-audio.so"
     os: linux
     dist: bionic
     compiler: clang
@@ -93,22 +93,27 @@ jobs:
   - name: macOS Latest
     env:
     - BUILD_VERSION=ffmpeg4
-    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=cache-x64"
+    - CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS=-I/usr/local/opt/llvm/include  -DCMAKE_C_LINKER_FLAGS=\"-L/usr/local/opt/llvm/lib\" -DCMAKE_CXX_LINKER_FLAGS=\"-L/usr/local/opt/llvm/lib\" -DOpenShotAudio_ROOT=../cache-x64"
     - TEST_TARGET="test"
     - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
-    - LIBOPENSHOT_AUDIO_LIBRARY="cache-x64/lib/libopenshot.dylib"
+    - LIBOPENSHOT_CACHE="cache-x64/lib/libopenshot-audio.dylib"
+    - PATH="/usr/local/opt/llvm/bin:$PATH"
+    - CFLAGS="-mlinker-version=450"
+    - CXXFLAGS="-mlinker-version=450"
+    - LDFLAGS="-mlinker-version=450"
     os: osx
     osx_image: xcode10.3
     addons:
       homebrew:
         update: true
         packages:
-        - gcc
+        - llvm
         - swig
         - unittest-cpp
         - rust
         - qt
         - libomp
+        - libgomp
         - imagemagick
         - libvpx
         - x264
@@ -116,32 +121,23 @@ jobs:
         - fdk-aac
         - fdk-aac-encoder
         - ffmpeg
+before_script:
+  - mkdir build
+  - if [ \! -e "${LIBOPENSHOT_CACHE}" ]; then mkdir libopenshot-audio-build; pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../cache-x64 ../libopenshot-audio; cmake --build . -- VERBOSE=1; cmake --build . --target install -- VERBOSE=1; popd; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cp cppzmq/zmq*.hpp build/; export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DCMAKE_INCLUDE_CURRENT_DIR:BOOL=TRUE"; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
 script:
-- mkdir build
-- if [ \! -e "${LIBOPENSHOT_AUDIO_LIBRARY}" ]; then mkdir libopenshot-audio-build; pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../build/cache-x64
-  ../libopenshot-audio; cmake --build . -- VERBOSE=1; make install VERBOSE=1; popd; fi
-- if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS}
-  -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
-- if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq;
-  cp cppzmq/zmq*.hpp build/; export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DCMAKE_INCLUDE_CURRENT_DIR:BOOL=TRUE";
-  fi
-- cd build
-- if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
-- cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=install-x64 ${CMAKE_EXTRA_ARGS}
-  ../libopenshot
-- cmake --build . -- VERBOSE=1
-- cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
-- cmake --build . --target install -- VERBOSE=1
-- cd ..
+  - cd build
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
+  - cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=install-x64 ${CMAKE_EXTRA_ARGS} ../libopenshot
+  - cmake --build . -- VERBOSE=1
+  - cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
+  - cmake --build . --target install -- VERBOSE=1
+  - cd ..
 after_success:
-  - tar cvpSf cache-x64.tar cache-x64
+  - cd build
+  - tar cvpSf ../libopenshot-install-x64.tar install-x64
 after_failure:
   - cat build/CMakeCache.txt
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew config; ls -R $(brew --prefix ffmpeg); fi
-deploy:
-  provider: releases
-  api_key:
-    secure: wicAiXBMO3d2XEUQ/aFBiPCNJf8y+BrJVsdNIVo2iOCZ9Zk2mtFjIC2SzJ122nQvS22jbNf5DyifchlcFcTash8hW+UQic7g+E4nfOkCM5RPvoUcKyZBPyoKR/d9YY2cWqIRoNPetPIvvR+m+C09LcQMsAjH+uQDAHmOF/cLUaU4SixAEXDtTzs3J98h30pXvHxIqLGzH9K4wCrCfitL+v0Lb3TCF9ddR5BxSER/WaapFiclZ1Y9zXmCy9l+Mx0l8cNlil7r0TxMCPthP9mISeOpWLU+ftjPwjD4c7ztPLlOEXR/qlz0XclSpgUYwGW8Smy06GU8B3YpKYbEY9tBBMenKRBMHcjyYmZ0U67VeUcB9bdOvJXV7oIsvWZwztXWSWVEUEFlYr55R6gjrbiJhwsXRb8/8YteWaX5UxrHAeDee5BaxkzBm368XG6PnwH5hRe0irrcrpRvkKRm9PqtSwShfGmcXAc8Oa00VZUorkpx1kaLc27wQCUIGQ3JyKjzHix5kGmjFetbFeg2mCE1ih3Ng08V88GOCVp1YzmAQKRKu4y8WuG+0DoyOgKEfdbliCrH4pjmUDrii86F4PlXHgYsNznQ7cLUke2CKrKuv1+y+Mh+q2fQ7bGn4ZB7kp4PiisjPWtYlKe96isKbHa9TpyFEs+9lw3Vz7zAICBvhSY=
-  file: build/cache-x64.tar
-  on:
-    repo: ferdnyc/bug-testing
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew config; brew list; for d in libomp libgomp; do ls -R $(brew --prefix $d); done; fi
+
