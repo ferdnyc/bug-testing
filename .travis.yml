@@ -1,26 +1,19 @@
 language: cpp
 compiler: gcc
-
-# This section uses a rather esoteric (and tricky!) feature of YAML,
-# &aliases and *anchors, to build package lists out of sublists without
-# repeating their contents. Basically, '&name' creates an alias for the
-# given data, which can then be referenced using the anchor '*name'.
 addons:
   apt:
-    packages: &p_common  # Packages common to all Ubuntu builds
-    - cmake
-    - swig
-    - libasound2-dev
-    - libmagick++-dev
-    - libunittest++-dev
-    - libzmq3-dev
-    - qtbase5-dev
-    - qtmultimedia5-dev
-    - doxygen
-    - graphviz
-    - curl
-    packages: &ff_common  # Common set of FFmpeg packages
-    - *p_common
+    packages: &1
+    - - cmake
+      - swig
+      - libasound2-dev
+      - libmagick++-dev
+      - libunittest++-dev
+      - libzmq3-dev
+      - qtbase5-dev
+      - qtmultimedia5-dev
+      - doxygen
+      - graphviz
+      - curl
     - libfdk-aac-dev
     - libavcodec-dev
     - libavformat-dev
@@ -34,7 +27,7 @@ addons:
   homebrew:
     taps:
     - jmuncaster/homebrew-header-only
-    packages: &homebrew
+    packages:
     - gcc
     - swig
     - unittest-cpp
@@ -49,90 +42,106 @@ addons:
     - fdk-aac-encoder
     - ffmpeg
     - cppzmq
-
+cache: cache-x64
 jobs:
   include:
-
-    - name: "FFmpeg 4 GCC (Ubuntu 18.04 Bionic)"
-      env:
-        - BUILD_VERSION=ffmpeg4
-        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=install-x64"
-        - TEST_TARGET=test
-      os: linux
-      dist: bionic
-      addons:
-        apt:
-          sources:
-          - sourceline: 'ppa:openshot.developers/libopenshot-daily'
-          - sourceline: 'ppa:beineri/opt-qt-5.12.3-bionic'
-          - sourceline: 'ppa:jonathonf/ffmpeg-4'
-          packages:
-          - *ff_common
-          - qt5-default
-          - libjsoncpp-dev
-          - libavcodec58
-          - libavformat58
-          - libavdevice58
-          - libavutil56
-          - libavfilter7
-          - libswscale5
-          - libpostproc55
-          - libavresample4
-          - libswresample3
-
-    - name: "FFmpeg 3.4 Clang (Ubuntu 18.04 Bionic)"
-      env:
-        - BUILD_VERSION=clang_ffmpeg34
-        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=install-x64"
-        - TEST_TARGET=test
-      os: linux
-      dist: bionic
-      compiler: clang
-      addons:
-        apt:
-          sources:
-          - sourceline: 'ppa:openshot.developers/libopenshot-daily'
-          - sourceline: 'ppa:beineri/opt-qt-5.12.3-bionic'
-          packages:
-          - *ff_common
-          - qt5-default
-          - libomp-dev
-          
-    - name: "macOS Latest"
-      env:
-        - BUILD_VERSION=ffmpeg4
-        - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=install-x64"
-        - TEST_TARGET="test"
-        - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
-      os: osx
-      osx_image: xcode10.3
-      addons:
-        homebrew:
-          packages:
-          - gcc
-          - swig
-          - unittest-cpp
-          - rust
-          - qt
-          - libomp
-          - imagemagick
-          - libvpx
-          - x264
-          - x265
-          - fdk-aac
-          - fdk-aac-encoder
-          - ffmpeg
-
+  - name: FFmpeg 4 GCC (Ubuntu 18.04 Bionic)
+    env:
+    - BUILD_VERSION=ffmpeg4
+    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=cache-x64"
+    - TEST_TARGET=test
+    - LIBOPENSHOT_AUDIO_LIBRARY="cache-x64/lib/libopenshot.so"
+    os: linux
+    dist: bionic
+    addons:
+      apt:
+        sources:
+        - sourceline: ppa:openshot.developers/libopenshot-daily
+        - sourceline: ppa:beineri/opt-qt-5.12.3-bionic
+        - sourceline: ppa:jonathonf/ffmpeg-4
+        packages:
+        - *1
+        - qt5-default
+        - libjsoncpp-dev
+        - libavcodec58
+        - libavformat58
+        - libavdevice58
+        - libavutil56
+        - libavfilter7
+        - libswscale5
+        - libpostproc55
+        - libavresample4
+        - libswresample3
+  - name: FFmpeg 3.4 Clang (Ubuntu 18.04 Bionic)
+    env:
+    - BUILD_VERSION=clang_ffmpeg34
+    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=cache-x64"
+    - TEST_TARGET=test
+    - LIBOPENSHOT_AUDIO_LIBRARY="cache-x64/lib/libopenshot.so"
+    os: linux
+    dist: bionic
+    compiler: clang
+    addons:
+      apt:
+        sources:
+        - sourceline: ppa:openshot.developers/libopenshot-daily
+        - sourceline: ppa:beineri/opt-qt-5.12.3-bionic
+        packages:
+        - *1
+        - qt5-default
+        - libomp-dev
+  - name: macOS Latest
+    env:
+    - BUILD_VERSION=ffmpeg4
+    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=cache-x64"
+    - TEST_TARGET="test"
+    - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
+    - LIBOPENSHOT_AUDIO_LIBRARY="cache-x64/lib/libopenshot.dylib"
+    os: osx
+    osx_image: xcode10.3
+    addons:
+      homebrew:
+        update: true
+        packages:
+        - gcc
+        - swig
+        - unittest-cpp
+        - rust
+        - qt
+        - libomp
+        - imagemagick
+        - libvpx
+        - x264
+        - x265
+        - fdk-aac
+        - fdk-aac-encoder
+        - ffmpeg
 script:
-  - mkdir build; mkdir libopenshot-audio-build
-  - pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../build/install-x64 ../libopenshot-audio; cmake --build . -- VERBOSE=1; make install VERBOSE=1; popd
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cp cppzmq/zmq*.hpp build/; export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DCMAKE_INCLUDE_CURRENT_DIR=1"; fi
-  - cd build
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
-  - cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=install-x64 ${CMAKE_EXTRA_ARGS} ../libopenshot
-  - cmake --build . -- VERBOSE=1
-  - cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
-  - make install VERBOSE=1
-  - cd ..
-
+- mkdir build
+- if [ \! -e "${LIBOPENSHOT_AUDIO_LIBRARY}" ]; then mkdir libopenshot-audio-build; pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../build/cache-x64
+  ../libopenshot-audio; cmake --build . -- VERBOSE=1; make install VERBOSE=1; popd; fi
+- if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS}
+  -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
+- if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq;
+  cp cppzmq/zmq*.hpp build/; export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DCMAKE_INCLUDE_CURRENT_DIR:BOOL=TRUE";
+  fi
+- cd build
+- if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
+- cmake -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX=install-x64 ${CMAKE_EXTRA_ARGS}
+  ../libopenshot
+- cmake --build . -- VERBOSE=1
+- cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
+- cmake --build . --target install -- VERBOSE=1
+- cd ..
+after_success:
+  - tar cvpSf cache-x64.tar cache-x64
+after_failure:
+  - cat build/CMakeCache.txt
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew config; ls -R $(brew --prefix ffmpeg); fi
+deploy:
+  provider: releases
+  api_key:
+    secure: wicAiXBMO3d2XEUQ/aFBiPCNJf8y+BrJVsdNIVo2iOCZ9Zk2mtFjIC2SzJ122nQvS22jbNf5DyifchlcFcTash8hW+UQic7g+E4nfOkCM5RPvoUcKyZBPyoKR/d9YY2cWqIRoNPetPIvvR+m+C09LcQMsAjH+uQDAHmOF/cLUaU4SixAEXDtTzs3J98h30pXvHxIqLGzH9K4wCrCfitL+v0Lb3TCF9ddR5BxSER/WaapFiclZ1Y9zXmCy9l+Mx0l8cNlil7r0TxMCPthP9mISeOpWLU+ftjPwjD4c7ztPLlOEXR/qlz0XclSpgUYwGW8Smy06GU8B3YpKYbEY9tBBMenKRBMHcjyYmZ0U67VeUcB9bdOvJXV7oIsvWZwztXWSWVEUEFlYr55R6gjrbiJhwsXRb8/8YteWaX5UxrHAeDee5BaxkzBm368XG6PnwH5hRe0irrcrpRvkKRm9PqtSwShfGmcXAc8Oa00VZUorkpx1kaLc27wQCUIGQ3JyKjzHix5kGmjFetbFeg2mCE1ih3Ng08V88GOCVp1YzmAQKRKu4y8WuG+0DoyOgKEfdbliCrH4pjmUDrii86F4PlXHgYsNznQ7cLUke2CKrKuv1+y+Mh+q2fQ7bGn4ZB7kp4PiisjPWtYlKe96isKbHa9TpyFEs+9lw3Vz7zAICBvhSY=
+  file: build/cache-x64.tar
+  on:
+    repo: ferdnyc/bug-testing
