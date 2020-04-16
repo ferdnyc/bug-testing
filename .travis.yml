@@ -73,24 +73,19 @@ jobs:
   - name: macOS Latest
     env:
     - BUILD_VERSION=ffmpeg4
-    - CMAKE_EXTRA_ARGS="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS=-I/usr/local/opt/llvm/include  -DCMAKE_C_LINKER_FLAGS=\"-L/usr/local/opt/llvm/lib\" -DCMAKE_CXX_LINKER_FLAGS=\"-L/usr/local/opt/llvm/lib\" -DOpenShotAudio_ROOT=../cache-x64"
     - TEST_TARGET="test"
+    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../cache-x64"
     - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
     - LIBOPENSHOT_CACHE="cache-x64/lib/libopenshot-audio.dylib"
-    - PATH="/usr/local/opt/llvm/bin:$PATH"
-    - CFLAGS="-mlinker-version=450"
-    - CXXFLAGS="-mlinker-version=450"
-    - LDFLAGS="-mlinker-version=450"
     - BREW_CACHE="$(brew --cache)"
     os: osx
     osx_image: xcode10.3
-    compiler: gcc
+    compiler: clang
     addons:
       homebrew:
         update: true
         packages:
-        - gcc@9
-        - glibc
+        - cmake
         - libomp
         - swig
         - unittest-cpp
@@ -111,7 +106,7 @@ before_script:
   - mkdir build
   - if [ \! -e "${LIBOPENSHOT_CACHE}" ]; then mkdir libopenshot-audio-build; pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../cache-x64 ../libopenshot-audio; cmake --build . -- VERBOSE=1; cmake --build . --target install -- VERBOSE=1; popd; fi
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cp cppzmq/zmq*.hpp build/; export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DCMAKE_INCLUDE_CURRENT_DIR:BOOL=TRUE"; fi
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then eval $(brew --env); export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then eval $(brew --env|grep -i cmake); export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
 script:
   - cd build
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
