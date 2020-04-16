@@ -83,17 +83,18 @@ jobs:
     - LDFLAGS="-mlinker-version=450"
     os: osx
     osx_image: xcode10.3
-    compiler: clang
+    compiler: gcc
     addons:
       homebrew:
         update: true
         packages:
-        - llvm
+        - gcc@9
+        - glibc
+        - libomp
         - swig
         - unittest-cpp
         - rust
         - qt
-        - libomp
         - libgomp
         - imagemagick
         - libvpx
