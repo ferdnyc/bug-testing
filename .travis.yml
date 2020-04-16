@@ -99,6 +99,7 @@ jobs:
         - fdk-aac
         - fdk-aac-encoder
         - ffmpeg
+        - zeromq
     cache:
       - *common
       - ${BREW_CACHE}
@@ -120,5 +121,5 @@ after_success:
   - tar cvpSf ../libopenshot-install-x64.tar install-x64
 after_failure:
   - cat build/CMakeCache.txt
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew config; brew doctor; done; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew config; brew doctor; fi
 
