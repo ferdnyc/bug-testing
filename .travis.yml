@@ -1,5 +1,4 @@
 language: cpp
-compiler: gcc
 addons:
   apt:
     packages: &1
@@ -24,24 +23,6 @@ addons:
     - libpostproc-dev
     - libavresample-dev
     - libswresample-dev
-  homebrew:
-    taps:
-    - jmuncaster/homebrew-header-only
-    packages:
-    - gcc
-    - swig
-    - unittest-cpp
-    - rust
-    - qt
-    - libomp
-    - imagemagick
-    - libvpx
-    - x264
-    - x265
-    - fdk-aac
-    - fdk-aac-encoder
-    - ffmpeg
-    - cppzmq
 cache: cache-x64
 jobs:
   include:
@@ -53,10 +34,10 @@ jobs:
     - LIBOPENSHOT_CACHE="cache-x64/lib/libopenshot-audio.so"
     os: linux
     dist: bionic
+    compiler: gcc
     addons:
       apt:
         sources:
-        - sourceline: ppa:openshot.developers/libopenshot-daily
         - sourceline: ppa:beineri/opt-qt-5.12.3-bionic
         - sourceline: ppa:jonathonf/ffmpeg-4
         packages:
@@ -84,7 +65,6 @@ jobs:
     addons:
       apt:
         sources:
-        - sourceline: ppa:openshot.developers/libopenshot-daily
         - sourceline: ppa:beineri/opt-qt-5.12.3-bionic
         packages:
         - *1
@@ -103,6 +83,7 @@ jobs:
     - LDFLAGS="-mlinker-version=450"
     os: osx
     osx_image: xcode10.3
+    compiler: clang
     addons:
       homebrew:
         update: true
