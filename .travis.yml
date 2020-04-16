@@ -23,7 +23,7 @@ addons:
     - libpostproc-dev
     - libavresample-dev
     - libswresample-dev
-cache: cache-x64
+cache: &common cache-x64
 jobs:
   include:
   - name: FFmpeg 4 GCC (Ubuntu 18.04 Bionic)
@@ -81,6 +81,7 @@ jobs:
     - CFLAGS="-mlinker-version=450"
     - CXXFLAGS="-mlinker-version=450"
     - LDFLAGS="-mlinker-version=450"
+    - BREW_CACHE="$(brew --cache)"
     os: osx
     osx_image: xcode10.3
     compiler: gcc
@@ -103,11 +104,14 @@ jobs:
         - fdk-aac
         - fdk-aac-encoder
         - ffmpeg
+    cache:
+      - *common
+      - ${BREW_CACHE}
 before_script:
   - mkdir build
   - if [ \! -e "${LIBOPENSHOT_CACHE}" ]; then mkdir libopenshot-audio-build; pushd libopenshot-audio-build; cmake -DCMAKE_INSTALL_PREFIX=../cache-x64 ../libopenshot-audio; cmake --build . -- VERBOSE=1; cmake --build . --target install -- VERBOSE=1; popd; fi
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cp cppzmq/zmq*.hpp build/; export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DCMAKE_INCLUDE_CURRENT_DIR:BOOL=TRUE"; fi
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then eval $(brew --env); export CMAKE_EXTRA_ARGS="${CMAKE_EXTRA_ARGS} -DFFmpeg_ROOT=$(brew --prefix ffmpeg)"; fi
 script:
   - cd build
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
@@ -121,5 +125,5 @@ after_success:
   - tar cvpSf ../libopenshot-install-x64.tar install-x64
 after_failure:
   - cat build/CMakeCache.txt
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew config; brew list; for d in libomp libgomp; do ls -R $(brew --prefix $d); done; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew config; brew doctor; done; fi
 
