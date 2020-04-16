@@ -104,6 +104,7 @@ jobs:
       - ${BREW_CACHE}
 before_script:
   - mkdir build
+  - rm -r cache-x64
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then eval $(brew --env|grep -i cmake); fi
   - if [ \! -e "${LIBOPENSHOT_CACHE}" ]; then mkdir libopenshot-audio-build; pushd libopenshot-audio-build; cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../cache-x64 ../libopenshot-audio; cmake --build . -- VERBOSE=1; cmake --build . --target install -- VERBOSE=1; popd; fi
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cd cppzmq; cmake $(brew diy --verbose --name cppzmq --version $(sh ./version.sh)) -DENABLE_DRAFTS=0 .; cmake --build .; cmake --build . --target install; brew link --verbose cppzmq; cd ..; fi
