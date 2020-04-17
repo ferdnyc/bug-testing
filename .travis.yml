@@ -56,7 +56,6 @@ jobs:
   - name: FFmpeg 3.4 Clang (Ubuntu 18.04 Bionic)
     env:
     - BUILD_VERSION=clang_ffmpeg34
-    - CMAKE_EXTRA_ARGS="-DOpenShotAudio_ROOT=../cache-x64"
     - TEST_TARGET=test
     os: linux
     dist: bionic
@@ -74,6 +73,7 @@ jobs:
     env:
     - BUILD_VERSION=ffmpeg4
     - TEST_TARGET="test"
+    - CMAKE_EXTRA_ARGS="-DENABLE_RUBY=0"
     - Qt5_DIR=/usr/local/opt/qt5/lib/cmake/Qt5
     os: osx
     osx_image: xcode11.3
