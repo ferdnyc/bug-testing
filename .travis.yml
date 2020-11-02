@@ -99,7 +99,7 @@ jobs:
 
 before_script:
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then eval $(brew --env|grep -i cmake); fi
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then cmake -B build/OpenShotAudio -S libopenshot-audio -DCMAKE_BUILD_TYPE=Debug $(brew diy --verbose --name openshot-audio --version $(sh ./libopenshot-audio/version.sh); cmake --build build/OpenShotAudio --verbose; cmake --install build/OpenShotAudio --verbose; brew link --verbose openshot-audio; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then cmake -B build/OpenShotAudio -S libopenshot-audio -DCMAKE_BUILD_TYPE=Debug $(brew diy --verbose --name openshot-audio --version $(sh ./libopenshot-audio/version.sh)); cmake --build build/OpenShotAudio --verbose; cmake --install build/OpenShotAudio --verbose; brew link --verbose openshot-audio; fi
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cmake -B build/cppzmq -S cppzmq -DCMAKE_BUILD_TYPE=Debug -DENABLE_DRAFTS=0 $(brew diy --verbose --name cppzmq --version $(sh ./cppzmq/version.sh)); cmake --build build/cppzmq; cmake --install build/cppzmq; brew link --verbose cppzmq; fi
 
 script:
