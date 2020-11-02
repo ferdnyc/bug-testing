@@ -98,19 +98,17 @@ jobs:
         - rust
 
 before_script:
-  - mkdir build
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then eval $(brew --env|grep -i cmake); fi
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then pushd libopenshot-audio; cmake -DCMAKE_BUILD_TYPE=Debug $(brew diy --name libopenshot-audio --version 0.2.0-dev2) .; cmake --build . -- VERBOSE=1; cmake --build . --target install -- VERBOSE=1; brew link libopenshot-audio; popd; fi
-  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; pushd cppzmq; cmake $(brew diy --verbose --name cppzmq --version $(sh ./version.sh)) -DCMAKE_BUILD_TYPE=Debug -DENABLE_DRAFTS=0 .; cmake --build .; cmake --build . --target install; brew link --verbose cppzmq; popd; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then cmake -B build/OpenShotAudio -S libopenshot-audio -DCMAKE_BUILD_TYPE=Debug $(brew diy --verbose --name openshot-audio --version $(sh ./libopenshot-audio/version.sh); cmake --build build/OpenShotAudio --verbose; cmake --install build/OpenShotAudio --verbose; brew link --verbose openshot-audio; fi
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then git clone https://github.com/zeromq/cppzmq; cmake -B build/cppzmq -S cppzmq -DCMAKE_BUILD_TYPE=Debug -DENABLE_DRAFTS=0 $(brew diy --verbose --name cppzmq --version $(sh ./cppzmq/version.sh)); cmake --build build/cppzmq; cmake --install build/cppzmq; brew link --verbose cppzmq; fi
 
 script:
-  - pushd build
   - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then echo "${CMAKE_EXTRA_ARGS}"; fi
-  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=install-x64 ${CMAKE_EXTRA_ARGS} ../libopenshot
-  - cmake --build . -- VERBOSE=1
-  - cmake --build . --target ${TEST_TARGET} -- VERBOSE=1
-  - cmake --build . --target install -- VERBOSE=1
-  - cd ..
+  - cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug ${CMAKE_EXTRA_ARGS} $( [ "x${TRAVIS_OS_NAME}" = "xosx" ] && $(brew diy --name libopenshot --version $(sh ./version.sh)) || echo "-DCMAKE_INSTALL_PREFIX=build/dist")
+  - cmake --build build --verbose
+  - cmake --build build --target ${TEST_TARGET}
+  - cmake --install build --verbose
+  - if [ "x${TRAVIS_OS_NAME}" = "xosx" ]; then brew link libopenshot; fi
 
 after_failure:
   - cat build/CMakeCache.txt
