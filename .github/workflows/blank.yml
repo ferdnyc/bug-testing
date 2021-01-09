@@ -21,21 +21,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        shell: [bash]
+        os: [macos-latest, ubuntu-latest]
         compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
-        exclude:
-          - os: windows-latest
-            shell: bash
         include:
           - os: windows-latest
             shell: 'msys2 {0}'
-            compiler: { cc: gcc, cxx: g++ }
+            compiler: { cc: clang, cxx: clang++ }
           - os: windows-latest
             shell: 'msys2 {0}'
-            compiler: { cc: clang, cxx: clang++ }
+            compiler: { cc: gcc, cxx: g++ }
     defaults: 
       run:
         shell: ${{ matrix.shell }}
