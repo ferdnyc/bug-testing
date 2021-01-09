@@ -41,7 +41,8 @@ jobs:
       CXX: ${{ matrix.compiler.cxx }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: msys2/setup-msys2@latest
+      - if: ${{ matrix.os == 'windows=latest' }}
+        uses: msys2/setup-msys2@v2
         with:
           release: false
           update: false
