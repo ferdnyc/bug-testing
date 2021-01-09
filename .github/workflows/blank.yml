@@ -18,21 +18,21 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.environment.os }}
+    runs-on: ${{ matrix.a.os }}
     strategy:
       matrix:
-        environment: 
+        a: 
           - { os: windows-latest, shell: 'msys2 {0}' },
           - { os: macos-latest, shell: bash },
           - { os: ubuntu-latest, shell: bash },
-        compiler_suite: 
+        b: 
           - { cc: gcc, cxx: g++ },
           - { cc: clang, cxx: clang++ }
         default: 
-          shell: ${{ matrix.environment.shell }}
+          shell: ${{ matrix.a.shell }}
     env:
-      CC: ${{ matrix.compiler_suite.cc }}
-      CXX: ${{ matrix.compiler_suite.cxx }}
+      CC: ${{ matrix.b.cc }}
+      CXX: ${{ matrix.b.cxx }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
