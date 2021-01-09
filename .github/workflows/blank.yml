@@ -23,15 +23,15 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         shell: [bash]
-        compiler:
-          - { cc: gcc, cxx: g++ }
-          - { cc: clang, cxx: clang++ }
         exclude:
           - os: windows-latest
             shell: bash
         include:
           - os: windows-latest
             shell: 'msys2 {0}'
+        compiler:
+          - { cc: gcc, cxx: g++ }
+          - { cc: clang, cxx: clang++ }
     defaults: 
       run:
         shell: ${{ matrix.shell }}
@@ -47,7 +47,9 @@ jobs:
           update: false
           install: >-
             mingw-w64-x86_64-clang
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            mingw-w64-x86_64-python
+            mingw-w64-x86_64-python-pip
+        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access i
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
@@ -57,5 +59,5 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          python -m pip install distro
+          python -mpip install distro
           python -mdistro
