@@ -22,10 +22,16 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        shell:
+        shell: [bash]
+        exclude:
+          - os: windows-latest
+            shell: bash
+        include:
           - os: windows-latest
             shell: 'msys2 {0}'
-          - os: [ubuntu-latest, macos-latest]
+          - os: ubuntu-latest
+            shell: bash
+          - os: macos-latest
             shell: bash
         compiler: 
           - { cc: gcc, cxx: g++ }
