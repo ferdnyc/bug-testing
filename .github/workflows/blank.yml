@@ -33,7 +33,7 @@ jobs:
             shell: bash
           - os: macos-latest
             shell: bash
-        compiler: 
+        compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
     defaults: 
