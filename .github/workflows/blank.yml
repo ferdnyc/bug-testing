@@ -44,6 +44,12 @@ jobs:
       CXX: ${{ matrix.compiler.cxx }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - uses: msys2/setup-msys2@latest
+        with:
+          release: false
+          update: false
+          install: >-
+            mingw-w64-x86_64-clang
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
