@@ -23,6 +23,9 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         shell: [bash]
+        compiler:
+          - { cc: gcc, cxx: g++ }
+          - { cc: clang, cxx: clang++ }
         exclude:
           - os: windows-latest
             shell: bash
@@ -33,9 +36,6 @@ jobs:
           - os: windows-latest
             shell: 'msys2 {0}'
             compiler: { cc: clang, cxx: clang++ }
-        compiler:
-          - { cc: gcc, cxx: g++ }
-          - { cc: clang, cxx: clang++ }
     defaults: 
       run:
         shell: ${{ matrix.shell }}
