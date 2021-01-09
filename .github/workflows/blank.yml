@@ -38,7 +38,7 @@ jobs:
           - { cc: clang, cxx: clang++ }
     defaults: 
       run:
-        shell: ${{ matrix.shell.shell }}
+        shell: ${{ matrix.shell }}
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
