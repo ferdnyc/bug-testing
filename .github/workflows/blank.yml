@@ -29,6 +29,10 @@ jobs:
         include:
           - os: windows-latest
             shell: 'msys2 {0}'
+            compiler: { cc: gcc, cxx: g++ }
+          - os: windows-latest
+            shell: 'msys2 {0}'
+            compiler: { cc: clang, cxx: clang++ }
         compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
