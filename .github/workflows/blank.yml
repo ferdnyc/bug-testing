@@ -19,23 +19,22 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ${{ matrix.sys.os }}
-    os: ${{ matrix.sys.os }}
     strategy:
       matrix:
         sys:
-          - { os: macos-latest, shell: bash }
-          - { os: ubuntu-latest, shell: bash }
-          - { os: windows-latest, shell: 'msys2 {0}' )
-        compiler:
-          - { cc: gcc, cxx: g++ }
-          - { cc: clang, cxx: clang++ }
-    defaults: 
-      run:
-        shell: ${{ matrix.sys.shell }}
+          - { os: windows, shell: msys2 },
+          - { os: ubuntu,  shell: bash  },
+          - { os: macos,   shell: bash  },
+        comp:
+          - { cc: gcc,   cxx: g++ },
+          - { cc: clang, cxx: clang++ },
     env:
-      CC: ${{ matrix.compiler.cc }}
-      CXX: ${{ matrix.compiler.cxx }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
+       CC: ${{ matrix.comp.cc }}
+       CXX: ${{ matrix.comp.cxx }}
+  runs-on: ${{ matrix.sys.os }}
+  defaults:
+    run:
+      shell: '${{ matrix.sys.shell }} {0}'
     steps:
       - if: ${{ runner.os == 'windows' }}
         uses: msys2/setup-msys2@v2
