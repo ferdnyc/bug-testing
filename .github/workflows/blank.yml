@@ -22,19 +22,18 @@ jobs:
     strategy:
       matrix:
         sys:
-          - { os: windows, shell: msys2 },
-          - { os: ubuntu,  shell: bash  },
-          - { os: macos,   shell: bash  },
+          - { os: windows, shell: msys2 }
+          - { os: ubuntu,  shell: bash  }
+          - { os: macos,   shell: bash  }
         comp:
-          - { cc: gcc,   cxx: g++ },
-          - { cc: clang, cxx: clang++ },
+          - { cc: gcc,   cxx: g++ }
+          - { cc: clang, cxx: clang++ }
+    defaults:
+      run:
+        shell: '${{ matrix.sys.shell }} {0}'
     env:
-       CC: ${{ matrix.comp.cc }}
-       CXX: ${{ matrix.comp.cxx }}
-  runs-on: ${{ matrix.sys.os }}
-  defaults:
-    run:
-      shell: '${{ matrix.sys.shell }} {0}'
+      CC: ${{ matrix.comp.cc }}
+      CXX: ${{ matrix.comp.cxx }}
     steps:
       - if: ${{ runner.os == 'windows' }}
         uses: msys2/setup-msys2@v2
