@@ -18,27 +18,20 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.sys.os }}
+    os: ${{ matrix.sys.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
-        shell: [bash]
+        sys:
+          - { os: macos-latest, shell: bash }
+          - { os: ubuntu-latest, shell: bash }
+          - { os: windows-latest, shell: 'msys2 {0}' )
         compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
-        friends:
-          - { flintstone: fred, rubble: barney }
-          - { flintstone: wilma, rubble: betty }
-        include:
-          - os: windows-latest
-            shell: 'msys2 {0}'
-            compiler: { cc: clang, cxx: clang++ }
-          - os: windows-latest
-            shell: 'msys2 {0}'
-            compiler: { cc: gcc, cxx: g++ }
     defaults: 
       run:
-        shell: ${{ matrix.shell }}
+        shell: ${{ matrix.sys.shell }}
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cxx }}
