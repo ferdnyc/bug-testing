@@ -26,6 +26,9 @@ jobs:
         compiler:
           - { cc: gcc, cxx: g++ }
           - { cc: clang, cxx: clang++ }
+        friends:
+          - { flintstone: fred, rubble: barney }
+          - { flintstone: wilma, rubble: betty }
         include:
           - os: windows-latest
             shell: 'msys2 {0}'
