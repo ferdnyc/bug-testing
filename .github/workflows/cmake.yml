@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: true
 
     - name: Test CMake
       run: cmake -B build -S . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
