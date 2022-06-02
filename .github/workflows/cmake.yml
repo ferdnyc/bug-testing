@@ -19,5 +19,8 @@ jobs:
       with:
         submodules: true
 
+    - name: Install Homebrew deps
+      run: brew update; brew install cmake
+
     - name: Test CMake
-      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake --check-system-vars -B build -S . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
