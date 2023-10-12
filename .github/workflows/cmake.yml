@@ -12,7 +12,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-12]
+        os:
+          - host: macos-latest
+            shell: bash
+          - host: windows-latest
+            shell: 'msys2 {0}'
+          - host: ubuntu-latest
+            shell: bash
+        compiler:
+          - cc: clang
+            cpp: clang++
+    defaults:
+      run:
+        shell: ${{ matrix.os.shell }}
+    env:
+      CC: ${{ matrix.compiler.cc }}
+      CXX: ${{ matrix.compiler.cpp }}
 
     steps:
     - uses: actions/checkout@v3
@@ -20,7 +35,9 @@ jobs:
         submodules: true
 
     - name: Install Homebrew deps
+      if: runner.os == 'macos'
       run: brew update; brew install cmake
 
     - name: Test CMake
+      if: runner.os == 'macos'
       run: cmake --check-system-vars -B build -S . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
