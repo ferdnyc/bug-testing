@@ -17,4 +17,5 @@ jobs:
           cache: 'maven'
       - name: "Check maven"
         run: |
+          cd java/mytest
           echo "$(which mvn)"
