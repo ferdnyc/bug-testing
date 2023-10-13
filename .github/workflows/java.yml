@@ -1,0 +1,20 @@
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [17]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '${{ matrix.java }}'
+          cache: 'maven'
+      - name: "Check maven"
+        run: |
+          echo "$(which mvn)"
