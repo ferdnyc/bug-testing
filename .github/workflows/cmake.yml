@@ -14,17 +14,15 @@ jobs:
       matrix:
         os:
           - host: macos-latest
-            shell: bash
           - host: windows-latest
             shell: 'msys2 {0}'
           - host: ubuntu-latest
-            shell: bash
         compiler:
           - cc: clang
             cpp: clang++
     defaults:
       run:
-        shell: ${{ matrix.os.shell }}
+        shell: ${{ matrix.os.shell || 'bash' }}
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cpp }}
