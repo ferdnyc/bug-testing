@@ -3,10 +3,6 @@ name: CMake
 on:
   workflow_dispatch:
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-    
 jobs:
   build:
     runs-on: ${{ matrix.os.host }}
@@ -20,6 +16,7 @@ jobs:
         compiler:
           - cc: clang
             cpp: clang++
+        build-type: [ 'RELEASE', 'DEBUG' ]
     defaults:
       run:
         shell: ${{ matrix.os.shell || 'bash' }}
@@ -32,10 +29,19 @@ jobs:
       with:
         submodules: true
 
+    - uses: haya14busa/action-cond@v1
+      id: cond-out
+      with:
+        cond: ${{ runner.os == 'linux' && matrix.build-type == 'RELEASE' }}
+        if_true: "\"-DENABLE_SOMETHING:BOOL=1\" \"-DSomething_ROOT:PATH=./something\""
+
     - name: Install Homebrew deps
       if: runner.os == 'macos'
       run: brew update; brew install cmake
 
     - name: Test CMake
-      if: runner.os == 'macos'
-      run: cmake --check-system-vars -B build -S . -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      if: runner.os == 'linux'
+      run: |
+        cmake --check-system-vars -B build -S . \
+          -DCMAKE_BUILD_TYPE=${{matrix.build-type}} \
+          ${{ steps.cond-out.outputs.value }}
