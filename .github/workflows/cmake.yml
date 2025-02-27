@@ -1,10 +1,31 @@
 name: CMake
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
 
 jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      branch_id: ${{ steps.select-branch.outputs.branch_id }}
+    steps:
+      - run: echo "${{ github.ref_name }}"
+      
+      - id: select-branch
+        run: |
+          if [[ \
+            ${{ startsWith(github.ref_name, 'backports/') && 1 || 0 }} == 1 \
+            ]]; then
+            BRANCH_ID=$( \
+              echo "${{ github.ref_name }}" | sed -e 's,^backports/,,')
+            echo "branch_id=$BRANCH_ID" >> $GITHUB_OUTPUT
+          else
+            echo "branch_id=main" >> $GITHUB_OUTPUT
+          fi
   build:
+    needs: select
     runs-on: ${{ matrix.os.host }}
     strategy:
       matrix:
@@ -23,8 +44,11 @@ jobs:
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cpp }}
+      BRANCH: ${{ needs.select.outputs.branch_id }}
 
     steps:
+    - run: echo "$BRANCH"
+    
     - uses: actions/checkout@v3
       with:
         submodules: true
