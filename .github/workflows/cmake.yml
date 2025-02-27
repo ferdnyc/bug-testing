@@ -9,20 +9,29 @@ jobs:
   select:
     runs-on: ubuntu-latest
     outputs:
-      branch_id: ${{ steps.select-branch.outputs.branch_id }}
+      branch_id: ${{ steps.select.outputs.branch_id }}
     steps:
       - run: echo "${{ github.ref_name }}"
       
-      - id: select-branch
+      - id: step1
+        if: ${{ ! startsWith(github.event_name, 'pull_request') }}
+        run: |
+          echo "target_branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+      - id: step2
+        if: ${{ startsWith(github.event_name, 'pull_request') }}
+        run: |
+          echo "target_branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
+      - id: select
+        env:
+          TARGET_BRANCH: ${{ steps.step1.outputs.target_branch || steps.step2.outputs.target_branch }}
         run: |
           if [[ \
-            ${{ startsWith(github.ref_name, 'backports/') && 1 || 0 }} == 1 \
-            ]]; then
-            BRANCH_ID=$( \
-              echo "${{ github.ref_name }}" | sed -e 's,^backports/,,')
+            ${{ startsWith(env.TARGET_BRANCH, 'backports/') && 1 || 0 }} == 1 \
+          ]]; then
+            BRANCH_ID=$(echo "$TARGET_BRANCH" | sed -e 's,^backports/,,')
             echo "branch_id=$BRANCH_ID" >> $GITHUB_OUTPUT
           else
-            echo "branch_id=main" >> $GITHUB_OUTPUT
+            echo "branch_id=$TARGET_BRANCH" >> $GITHUB_OUTPUT
           fi
   build:
     needs: select
