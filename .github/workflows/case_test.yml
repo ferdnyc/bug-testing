@@ -1,0 +1,15 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  my_job:
+    name: deploy to staging
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: step1
+        run: echo "test_value=12" >> $GITHUB_OUTPUT
+      - id: step2
+        run: echo "${{ step1.outputs.TEST_VALUE }}"
+
+      
