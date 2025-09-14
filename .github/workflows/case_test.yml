@@ -10,7 +10,7 @@ jobs:
       - id: step1
         run: echo "test_value=12" >> $GITHUB_OUTPUT
       - id: step2
-        run: echo "${{ steps..step1.outputs.TEST_VALUE }}"
+        run: echo "${{ steps.step1.outputs.TEST_VALUE }}"
         
 
       
