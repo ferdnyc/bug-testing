@@ -7,6 +7,7 @@
 <style>
 html, body {
   font-size: 20px;
+  font-family: sans-serif;
 }
 h3 {
   margin-top: 2em;
@@ -55,8 +56,8 @@ form {
 </style>
 <script>
 const target_widths_px = {
-  form1: 878,
-  form2: 953,
+  form1: { min: 857, max: 878 },
+  form2: { min: 956, max: 982 },
 }
 const timers = new Map();
 let win_width;
@@ -65,11 +66,11 @@ function update_size(event, form) {
   win_width = window.innerWidth;
   const value = form.querySelector("input.width-value");
   value.value = win_width;
-  const proximity = Math.abs(win_width - target_widths_px[form.id]);
-  if (proximity <= 2) {
+  const prox_range = target_widths_px[form.id];
+  if (prox_range.min <= win_width && win_width <= prox_range.max) {
     value.classList.remove("near-target");
     value.classList.add("hit-target");
-  } else if (proximity <= 8) {
+  } else if (Object.values(prox_range).some((e) => Math.abs(e - win_width) <= 8)) { 
     value.classList.remove("hit-target");
     value.classList.add("near-target");
   } else {
@@ -86,8 +87,10 @@ addEventListener("load", () => {
   const forms = document.querySelectorAll(".width-form");
   for (const form of forms) {
     const targets = form.querySelectorAll(".width-target");
-    for (const target of targets)
-      target.textContent = target_widths_px[form.id];
+    for (const target of targets) {
+      const prox_range = target_widths_px[form.id];
+      target.textContent = `${prox_range.min}–${prox_range.max}`;
+    }
     set_watcher(form);
     update_size({}, form);
   }
@@ -106,7 +109,7 @@ addEventListener("load", () => {
 <h3>Link 1: FOUT</h3>
 <form id="form1" class="width-form">
 <p class="width-readout">Page width: 
-<input type="text" class="width-value" minlength="1" maxlength="4" size="4" id="value1"></input> px (Target is <span class="width-target"></span> <small>(±2)</small> px)</p>
+<input type="text" class="width-value" minlength="1" maxlength="4" size="4" id="value1"></input> px (Target is <span class="width-target"></span> px)</p>
 <div class="width-display">
 <svg class="arrows" id="arrows1" width="1920.1016" height="107.0318" viewBox="0 0 1920.1016 107.0318" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
 <defs id="defs1"> 
@@ -123,7 +126,7 @@ addEventListener("load", () => {
 </svg>
 </div>
 <ol>
-<li><p>Resize the Chrome window showing this page until the page width is <span class="width-target"></span><small> (±2)</small> pixels. (The value in "Page width:" above will turn from <span class="far-from-target">RED</span> to <span class="near-target">ORANGE</span> as you near the target width, and <span class="hit-target">GREEN</span> when the size is correct.)</p></li>
+<li><p>Resize the Chrome window showing this page until the page width is <span class="width-target"></span> pixels. (The value in "Page width:" above will turn from <span class="far-from-target">RED</span> to <span class="near-target">ORANGE</span> as you near the target width, and <span class="hit-target">GREEN</span> when the size is correct.)</p></li>
 <li><p><b>Once the value is <span class="hit-target">GREEN</span></b>, hover over this link:
 <span style="font-size:24px;font-weight:bold;">
 <a href="http://www.paulirish.com/2009/fighting-the-font-face-fout/">Fighting the font-face FOUT</a>
@@ -139,7 +142,7 @@ addEventListener("load", () => {
 <h3>Link 2: Specifying Paint</h3>
 <form id="form2" class="width-form">
 <p class="width-readout">Page width: 
-<input type="text" class="width-value" minlength="1" maxlength="4" size="4" id="value2"></input> px (Target is <span class="width-target"></span> <small>(±2)</small> px)</p>
+<input type="text" class="width-value" minlength="1" maxlength="4" size="4" id="value2"></input> px (Target is <span class="width-target"></span> px)</p>
 <div class="width-display">
 <svg class="arrows" id="arrows2" width="1920.1016" height="107.0318" viewBox="0 0 1920.1016 107.0318" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
 <defs id="defs1"> 
@@ -156,7 +159,7 @@ addEventListener("load", () => {
 </svg>
 </div>
 <ol>
-<li><p>Resize the Chrome window showing this page until the page width is <span class="width-target"></span><small> (±2)</small> pixels. (The value in "Page width:" above will turn from <span class="far-from-target">RED</span> to <span class="near-target">ORANGE</span> as you near the target width, and <span class="hit-target">GREEN</span> when the size is correct.)</p></li>
+<li><p>Resize the Chrome window showing this page until the page width is <span class="width-target"></span> pixels. (The value in "Page width:" above will turn from <span class="far-from-target">RED</span> to <span class="near-target">ORANGE</span> as you near the target width, and <span class="hit-target">GREEN</span> when the size is correct.)</p></li>
 <li><p><b>Once the value is <span class="hit-target">GREEN</span></b>, hover over this link:
 <span style="font-size:24px;font-weight:bold;">
 <a href="https://svgwg.org/svg2-draft/painting.html#SpecifyingPaint">Specifying Paint</a>
