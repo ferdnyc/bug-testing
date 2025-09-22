@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chrome hover-url ellipsizing bug repo</title>
+</head>
+<body>
+<style>
+html, body {
+  font-size: 20px;
+}
+h3 {
+  margin-top: 2em;
+}
+.width-readout {
+  width: auto;
+  margin-left: auto;
+  margin-right: 5rem;
+  margin-bottom: -0.5rem;
+  float: right;
+  font-size: 24px;
+}
+.width-display {
+  box-sizing: content-box;
+  font-size: 24px;
+  max-width: 100vw;
+}
+.width-value {
+  font-size: 24px;
+  font-family: monospace;
+  font-weight: bold;
+  color: red;
+}
+.width-target {
+  font-weight: bold;
+}
+.far-from-target {
+  color: red;
+}
+.near-target {
+  color: orange;
+}
+.hit-target {
+  color: darkgreen;
+}
+form {
+  margin: 0 auto;
+  width: auto;
+}
+.arrows {
+  box-sizing: border-box;
+  min-width: 100%;
+  width: 100%;
+  height: auto;
+}
+</style>
+<script>
+const target_widths_px = {
+  form1: 878,
+  form2: 953,
+}
+const timers = new Map();
+let win_width;
+function update_size(event, form) {
+  const disabler = form.querySelector("input.onoff");
+  win_width = window.innerWidth;
+  const value = form.querySelector("input.width-value");
+  value.value = win_width;
+  const proximity = Math.abs(win_width - target_widths_px[form.id]);
+  if (proximity <= 2) {
+    value.classList.remove("near-target");
+    value.classList.add("hit-target");
+  } else if (proximity <= 8) {
+    value.classList.remove("hit-target");
+    value.classList.add("near-target");
+  } else {
+    value.classList.remove("hit-target");
+    value.classList.remove("near-target");
+  }
+};
+function set_watcher(form) {
+  const watcher = addEventListener("resize", (event) => { update_size(event, form); });
+  timers[form.id] = watcher;
+};
+addEventListener("load", () => {
+  const targets = document.querySelectorAll(".target-value");
+  const forms = document.querySelectorAll(".width-form");
+  for (const form of forms) {
+    const targets = form.querySelectorAll(".width-target");
+    for (const target of targets)
+      target.textContent = target_widths_px[form.id];
+    set_watcher(form);
+    update_size({}, form);
+  }
+});
+</script>
+<h1>Reproducing failed url-hover expansion in desktop Chrome</h1>
+
+<h2>What you'll need to test this bug</h2>
+<ol>
+<li>A desktop version of Chrome on Windows.</li>
+<li>An input device (mouse, trackpad, etc.) controlling a pointer which can be hovered over links without clicking them. (No touchscreen navigation.)</li>
+<li>Chrome running in a resizable window where you can control the exact width of the browser. (No fullscreen.)
+</ol>
+
+<h2>How to test</h2>
+<h3>Link 1: FOUT</h3>
+<form id="form1" class="width-form">
+<p class="width-readout">Page width: 
+<input type="text" class="width-value" minlength="1" maxlength="4" size="4" id="value1"></input> px (Target is <span class="width-target"></span> <small>(±2)</small> px)</p>
+<div class="width-display">
+<svg class="arrows" id="arrows1" width="1920.1016" height="107.0318" viewBox="0 0 1920.1016 107.0318" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+<defs id="defs1"> 
+  <marker style="overflow:visible" id="marker2" refX="0" refY="0" orient="auto-start-reverse" markerWidth="1" markerHeight="1" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid">
+    <path transform="scale(0.7)" d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z" style="fill:context-stroke;fill-rule:evenodd;stroke:none" id="path2" />
+  </marker>
+  <marker style="overflow:visible" id="RoundedArrow" refX="0" refY="0" orient="auto-start-reverse" markerWidth="1" markerHeight="1" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid">
+    <path transform="scale(0.7)" d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z" style="fill:context-stroke;fill-rule:evenodd;stroke:none" id="path8" />
+  </marker>
+</defs>
+<g id="layer1" transform="translate(-0.9510019,-0.99999986)">
+  <path style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:18.0477;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#RoundedArrow);marker-end:url(#marker2)" d="M 86.402397,54.515901 H 1835.6012" id="path1" />
+</g>
+</svg>
+</div>
+<ol>
+<li><p>Resize the Chrome window showing this page until the page width is <span class="width-target"></span><small> (±2)</small> pixels. (The value in "Page width:" above will turn from <span class="far-from-target">RED</span> to <span class="near-target">ORANGE</span> as you near the target width, and <span class="hit-target">GREEN</span> when the size is correct.)</p></li>
+<li><p><b>Once the value is <span class="hit-target">GREEN</span></b>, hover over this link:
+<span style="font-size:24px;font-weight:bold;">
+<a href="http://www.paulirish.com/2009/fighting-the-font-face-fout/">Fighting the font-face FOUT</a>
+</span></p></li>
+<li><p>That link points to this URL:<br><code>http://www.paulirish.com/2009/fighting-the-font-face-fout/</code></p></li>
+<li><p>At the correct browser width, the status bubble at the bottom of the window will show:</p>
+<blockquote><b><code>www.paulirish.com/2009/fighting-the-font-face-f...</code></b></blockquote></li>
+<li><p>No matter how long you hover over the link, the bubble will NOT expand to the full URL. At any other width, when the URL is shortened differently, it will.</p></li>
+</ol>
+</form>
+
+
+<h3>Link 2: Specifying Paint</h3>
+<form id="form2" class="width-form">
+<p class="width-readout">Page width: 
+<input type="text" class="width-value" minlength="1" maxlength="4" size="4" id="value2"></input> px</p>
+<div class="width-display">
+<svg class="arrows" id="arrows2" width="1920.1016" height="107.0318" viewBox="0 0 1920.1016 107.0318" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+<defs id="defs1"> 
+  <marker style="overflow:visible" id="marker2" refX="0" refY="0" orient="auto-start-reverse" markerWidth="1" markerHeight="1" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid">
+    <path transform="scale(0.7)" d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z" style="fill:context-stroke;fill-rule:evenodd;stroke:none" id="path2" />
+  </marker>
+  <marker style="overflow:visible" id="RoundedArrow" refX="0" refY="0" orient="auto-start-reverse" markerWidth="1" markerHeight="1" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid">
+    <path transform="scale(0.7)" d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z" style="fill:context-stroke;fill-rule:evenodd;stroke:none" id="path8" />
+  </marker>
+</defs>
+<g id="layer1" transform="translate(-0.9510019,-0.99999986)">
+  <path style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:18.0477;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#RoundedArrow);marker-end:url(#marker2)" d="M 86.402397,54.515901 H 1835.6012" id="path1" />
+</g>
+</svg>
+</div>
+<ol>
+<li><p>Resize the Chrome window showing this page until the page width is <span class="width-target"></span><small> (±2)</small> pixels. (The value in "Page width:" above will turn from <span class="far-from-target">RED</span> to <span class="near-target">ORANGE</span> as you near the target width, and <span class="hit-target">GREEN</span> when the size is correct.)</p></li>
+<li><p><b>Once the value is <span class="hit-target">GREEN</span></b>, hover over this link:
+<span style="font-size:24px;font-weight:bold;">
+<a href="https://svgwg.org/svg2-draft/painting.html#SpecifyingPaint">Specifying Paint</a>
+</span></p></li>
+<li><p>That link points to this URL:<br><code>https://svgwg.org/svg2-draft/painting.html#SpecifyingPaint</code></p></li>
+<li><p>At the correct browser width, the status bubble at the bottom of 
+the window will show:
+<blockquote><b><code>https://svgwg.org/svg2-draft/painting.html#SpecifyingP...</code></b></blockquote></p></li>
+<li><p>No matter how long you hover over the link, the bubble will NOT expand to the full URL. At any other width, when the URL is shortened differently, it will.</p></li>
+</ol>
+</form>
+</body>
+</html>
