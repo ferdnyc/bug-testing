@@ -1,8 +1,0 @@
-[submodule "libopenshot-audio"]
-	path = libopenshot-audio
-	url = https://github.com/ferdnyc/libopenshot-audio
-	branch = export-targets
-[submodule "libopenshot"]
-	path = libopenshot
-	url = https://github.com/ferdnyc/libopenshot
-	branch = export-target
