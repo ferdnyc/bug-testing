@@ -41,21 +41,26 @@ jobs:
         os:
           - host: macos-latest
           - host: windows-latest
-            shell: 'msys2 {0}'
+            # shell: 'msys2 {0}'
           - host: ubuntu-latest
         compiler:
           - cc: clang
             cpp: clang++
         build-type: [ 'RELEASE', 'DEBUG' ]
-    defaults:
-      run:
-        shell: ${{ matrix.os.shell || 'bash' }}
+    # defaults:
+    #   run:
+    #     shell: ${{ matrix.os.shell || 'bash' }}
     env:
       CC: ${{ matrix.compiler.cc }}
       CXX: ${{ matrix.compiler.cpp }}
       BRANCH: ${{ needs.select.outputs.branch_id }}
 
     steps:
+    - uses: msys2/setup-msys2@v2
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        update: true
+
     - run: echo "$BRANCH"
     
     - uses: actions/checkout@v3
@@ -66,7 +71,7 @@ jobs:
       id: cond-out
       with:
         cond: ${{ runner.os == 'linux' && matrix.build-type == 'RELEASE' }}
-        if_true: "\"-DENABLE_SOMETHING:BOOL=1\" \"-DSomething_ROOT:PATH=./something\""
+        if_true: '"-DENABLE_SOMETHING:BOOL=1" "-DSomething_ROOT:PATH=./something"'
 
     - name: Install Homebrew deps
       if: runner.os == 'macos'
