@@ -35,11 +35,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/python/libopensh
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/python/libopenshot" CACHE PATH "Common build-tree location for executable objects" FORCE)
 
 add_subdirectory(libopenshot-audio)
-add_subdirectory(libopenshot)
+#add_subdirectory(libopenshot)
 
 #set(CMAKE_SWIG_FLAGS $<TARGET_PROPERTY:OpenShot::Lib,COMPILE_DEFINITIONS>)
 
-add_subdirectory(python/libopenshot)
+#add_subdirectory(python/libopenshot)
 
 ###
 ### Create setuptools configuration
@@ -48,15 +48,15 @@ configure_file(python/setup.cfg.in python/setup.cfg)
 configure_file(python/setup.py.in python/setup.py)
 
 ######### INSTALL PATH ########
-set (PYTHON_MODULE_PATH "libopenshot")
-message(STATUS "PYTHON_MODULE_PATH: ${CMAKE_INSTALL_PREFIX}/${PYTHON_MODULE_PATH}")
+#set (PYTHON_MODULE_PATH "libopenshot")
+#message(STATUS "PYTHON_MODULE_PATH: ${CMAKE_INSTALL_PREFIX}/${PYTHON_MODULE_PATH}")
 
 ############### INSTALL HEADERS & LIBRARY ################
 ### Install Python bindings
-install(TARGETS pyopenshot
-  DESTINATION ${PYTHON_MODULE_PATH} )
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/python/libopenshot/openshot.py
-  DESTINATION ${PYTHON_MODULE_PATH} )
+#install(TARGETS pyopenshot
+#  DESTINATION ${PYTHON_MODULE_PATH} )
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/python/libopenshot/openshot.py
+#  DESTINATION ${PYTHON_MODULE_PATH} )
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/python/setup.cfg
   ${CMAKE_CURRENT_BINARY_DIR}/python/setup.py

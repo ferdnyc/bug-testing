@@ -60,6 +60,17 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
       with:
         update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-pkgconf
+          mingw-w64-x86_64-make
+          make
+          pkgconf
+
+    - if: ${{ runner.os == 'linux' }}
+      run: |
+        sudo apt update
+        sudo apt install cmake doxygen graphviz libasound2-dev
 
     - run: echo "$BRANCH"
     
